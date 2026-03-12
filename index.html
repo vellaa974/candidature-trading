@@ -665,7 +665,7 @@ body {
 <script>
 // ─── CONFIG ────────────────────────────────────────────────────────────────
 // 👉 Remplacez cette URL par celle de votre Google Apps Script (voir instructions)
-const SHEET_URL = "https://script.google.com/macros/s/AKfycbwKXU63iikbDEapgDaUV_TK2ngvV1HKy6QZJI1JyfrjCKFyL0V3ydq0sUnFQT5Aad3a/exec";
+const SHEET_URL = "https://script.google.com/macros/s/AKfycbxLtLzeykEI1u6dqcy1MXPSmXbzMT6MYqdaQn84vTUnST03lfImLYw7G9P0zbDSLRoS/exec";
 
 // ─── DATA ──────────────────────────────────────────────────────────────────
 const SECTIONS = ["Profil","Motivation","Psychologie","Technique","Engagement","Objectifs"];
@@ -925,15 +925,25 @@ function submit() {
     reponses: rows.join('\n\n')
   };
 
-  // Envoi vers Google Apps Script (si configuré)
-  if (SHEET_URL !== "https://script.google.com/macros/s/AKfycbwKXU63iikbDEapgDaUV_TK2ngvV1HKy6QZJI1JyfrjCKFyL0V3ydq0sUnFQT5Aad3a/exec") {
-    fetch(SHEET_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).catch(()=>{});
-  }
+  // Envoi via iframe pour contourner CORS
+  const iframe = document.createElement('iframe');
+  iframe.name = 'hidden_iframe';
+  iframe.style.display = 'none';
+  document.body.appendChild(iframe);
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = SHEET_URL;
+  form.target = 'hidden_iframe';
+  form.style.display = 'none';
+  Object.entries(payload).forEach(([key, val]) => {
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = key;
+    input.value = val;
+    form.appendChild(input);
+  });
+  document.body.appendChild(form);
+  form.submit();
 
   document.getElementById('suc-title').textContent = 'Merci ' + userName + ' !';
   document.getElementById('suc-email').textContent = userEmail;
