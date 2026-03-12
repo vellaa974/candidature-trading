@@ -925,25 +925,12 @@ function submit() {
     reponses: rows.join('\n\n')
   };
 
-  // Envoi via iframe pour contourner CORS
-  const iframe = document.createElement('iframe');
-  iframe.name = 'hidden_iframe';
-  iframe.style.display = 'none';
-  document.body.appendChild(iframe);
-  const form = document.createElement('form');
-  form.method = 'POST';
-  form.action = SHEET_URL;
-  form.target = 'hidden_iframe';
-  form.style.display = 'none';
-  Object.entries(payload).forEach(([key, val]) => {
-    const input = document.createElement('input');
-    input.type = 'hidden';
-    input.name = key;
-    input.value = val;
-    form.appendChild(input);
-  });
-  document.body.appendChild(form);
-  form.submit();
+  // Envoi vers Forminit
+  fetch("https://forminit.com/f/zuz7n662l28", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Accept": "application/json" },
+    body: JSON.stringify(payload)
+  }).catch(()=>{});
 
   document.getElementById('suc-title').textContent = 'Merci ' + userName + ' !';
   document.getElementById('suc-email').textContent = userEmail;
